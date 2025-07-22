@@ -1,7 +1,7 @@
-﻿using Soduku.Helpers;
+﻿using Sudoku.Helpers;
 
 
-namespace Soduku
+namespace Sudoku
 {
     public static class Startup
     {

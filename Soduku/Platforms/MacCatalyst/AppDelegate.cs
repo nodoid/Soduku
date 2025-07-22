@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace Soduku
+namespace Sudoku
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace Soduku
+namespace Sudoku
 {
     [Application]
     public class MainApplication : MauiApplication

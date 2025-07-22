@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace Soduku
+namespace Sudoku
 {
     public class Program
     {

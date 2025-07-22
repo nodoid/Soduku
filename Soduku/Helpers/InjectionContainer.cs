@@ -2,10 +2,10 @@
 using TimeOfDeath_MAUI.ViewModels;
 using TimeOfDeath_MAUI.Interfaces;
 using TimeOfDeath_MAUI.Services;
-using Soduku.Interfaces;
-using Soduku.Services;
+using Sudoku.Interfaces;
+using Sudoku.Services;
 
-namespace Soduku.Helpers
+namespace Sudoku.Helpers
 {
     public static class InjectionContainer
     {

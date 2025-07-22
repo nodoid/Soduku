@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using Soduku.Viewmodels;
+using Sudoku.Viewmodels;
 using Syncfusion.Maui.Toolkit.Hosting;
 
-namespace Soduku
+namespace Sudoku
 {
     public static class MauiProgram
     {

@@ -1,4 +1,4 @@
-﻿namespace Soduku.Interfaces
+﻿namespace Sudoku.Interfaces
 {
     public interface IDataChecking
     {

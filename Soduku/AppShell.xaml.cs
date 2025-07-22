@@ -1,4 +1,4 @@
-﻿namespace Soduku
+﻿namespace Sudoku
 {
     public partial class AppShell : Shell
     {

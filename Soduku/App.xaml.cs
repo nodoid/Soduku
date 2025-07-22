@@ -1,4 +1,4 @@
-﻿namespace Soduku
+﻿namespace Sudoku
 {
     public partial class App : Application
     {

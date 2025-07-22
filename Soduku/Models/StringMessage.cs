@@ -1,4 +1,4 @@
-﻿namespace Soduku.Models
+﻿namespace Sudoku.Models
 {
     public class StringMessage
     {

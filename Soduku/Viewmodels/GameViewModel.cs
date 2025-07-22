@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Soduku.Viewmodels
+namespace Sudoku.Viewmodels
 {
     public partial class GameViewModel : ObservableObject
     {
