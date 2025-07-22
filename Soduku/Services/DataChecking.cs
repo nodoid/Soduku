@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using AndroidX.AppCompat.View.Menu;
+using CommunityToolkit.Mvvm.Messaging;
 using Soduku.Interfaces;
 using Soduku.Models;
 
@@ -16,6 +17,7 @@ namespace Soduku.Services
         Stack<string[,]> PossibleStack = new Stack<string[,]>();
         int[,] Actual = new int[10, 10];
         string[,] Possible = new string[10, 10];
+        Stack<string> Moves = new Stack<string> { };
 
         public void SetupVars(int[,] actual, string[,] poss, bool hint)
         {
@@ -82,11 +84,14 @@ namespace Soduku.Services
                                 return false; // illegal move
                             }
 
-                            //SetToolTip(col, row, possible[col, row]);
+                            messenger.Send(new TripleTupleMessage { Message = new Tuple<object, object, object>(col, row, Possible[col, row]), Sender = "ToolTip" });
 
                             if (Possible[col, row].Length == 1)
                             {
-                                SetCell(col, row, Convert.ToInt32(Possible[col, row]), 1);
+                                messenger.Send(new QuadTupleMessage 
+                                { 
+                                    Message = new Tuple<object, object, object, object>(col, row, Possible[col, row], 1), 
+                                    Sender = "SetCell" });
 
                                 Actual[col, row] = Convert.ToInt32(Possible[col, row]);
 
@@ -112,9 +117,9 @@ namespace Soduku.Services
         public void FindCellWithFewestPossibleValues(ref int col, ref int row)
         {
             int min = 10;
-            for (int r = 1; r <= 9; r++)
+            for (var r = 1; r <= 9; r++)
             {
-                for (int c = 1; c <= 9; c++)
+                for (var c = 1; c <= 9; c++)
                 {
                     if (Actual[c, r] == 0 && Possible[c, r].Length < min)
                     {
@@ -235,16 +240,22 @@ namespace Soduku.Services
                             {
                                 occurrence += 1;
                                 if (occurrence > 1)
-                                    break; // TODO: might not be correct. Was : Exit For
-                                cPos = c;
+                                    break; 
                                 rPos = r;
                             }
                         }
                         if (occurrence == 1)
                         {
-                            SetCell(cPos, rPos, n, 1);
-                            //SetToolTip(cPos, rPos, n.ToString());
-                            //---saves the move into the stack
+                            messenger.Send(new QuadTupleMessage
+                            {
+                                Message = new Tuple<object, object, object, object>(cPos, rPos, n, 1),
+                                Sender = "SetCell"
+                            });
+                            messenger.Send(new TripleTupleMessage
+                            {
+                                Message = new Tuple<object, object, object>(cPos, rPos, n.ToString()),
+                                Sender = "ToolTip"
+                            });
                             Moves.Push(cPos + rPos + n.ToString());
 
                             messenger.Send(new StringMessage { Message = "Look for Lone Rangers in Columns", Sender = "DataActivity" });
@@ -303,9 +314,17 @@ namespace Soduku.Services
                             }
                             if ((!NextMiniGrid) && occurrence == 1)
                             {
-                                SetCell(cPos, rPos, n, 1);
-                                //SetToolTip(cPos, rPos, n.ToString());
-                                //---saves the move into the stack
+                                messenger.Send(new QuadTupleMessage
+                                {
+                                    Message = new Tuple<object, object, object, object>(cPos, rPos, n, 1),
+                                    Sender = "SetCell"
+                                });
+                                messenger.Send(new TripleTupleMessage
+                                {
+                                    Message = new Tuple<object, object, object>(cPos, rPos, n.ToString()),
+                                    Sender = "ToolTip"
+                                });
+
                                 Moves.Push(cPos + rPos + n.ToString());
 
                                 messenger.Send(new StringMessage { Message = "Look for Lone Rangers in Minigrids", Sender = "DataActivity" });
@@ -350,8 +369,16 @@ namespace Soduku.Services
                         }
                         if (occurrence == 1)
                         {
-                            SetCell(cPos, rPos, n, 1);
-                            //SetToolTip(cPos, rPos, n.ToString());
+                            messenger.Send(new QuadTupleMessage
+                            {
+                                Message = new Tuple<object, object, object, object>(cPos, rPos, n, 1),
+                                Sender = "SetCell"
+                            });
+                            messenger.Send(new TripleTupleMessage
+                            {
+                                Message = new Tuple<object, object, object>(cPos, rPos, n.ToString()),
+                                Sender = "ToolTip"
+                            });
                             Moves.Push(cPos + rPos + n.ToString());
                             messenger.Send(new StringMessage { Message = "Look for Lone Rangers in Rows", Sender = "DataActivity" });
                             messenger.Send(new StringMessage { Message = $"Inserted value {n} in ({cPos}, {rPos}", Sender = "DataActivity" });
@@ -391,7 +418,11 @@ namespace Soduku.Services
                                             var original_possible = Possible[c, rrr];
                                             Possible[c, rrr] = Possible[c, rrr].Replace(Possible[c, r][0], Convert.ToChar(string.Empty));
                                             Possible[c, rrr] = Possible[c, rrr].Replace(Possible[c, r][1], Convert.ToChar(string.Empty));
-                                            //SetToolTip(c, rrr, possible[c, rrr]);
+                                            messenger.Send(new TripleTupleMessage
+                                            {
+                                                Message= new Tuple<object, object, object>(c, rrr, Possible[c, rrr]),
+                                                Sender = "Tooltip"
+                                            });
 
                                             if (original_possible != Possible[c, rrr])
                                             {
@@ -406,9 +437,17 @@ namespace Soduku.Services
 
                                             if (Possible[c, rrr].Length == 1)
                                             {
-                                                SetCell(c, rrr, Convert.ToInt32(Possible[c, rrr]), 1);
-                                                //SetToolTip(c, rrr, possible[c, rrr]);
-                                                //---saves the move into the stack
+                                                messenger.Send(new QuadTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object, object>(c, rrr, Convert.ToInt32(Possible[c, rrr]), 1),
+                                                    Sender = "SetCell"
+                                                });
+                                                messenger.Send(new TripleTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object>(c, rrr, Possible[c, rrr]),
+                                                    Sender = "ToolTip"
+                                                });
+                                                
                                                 Moves.Push(c + rrr + Possible[c, rrr]);
                                                 messenger.Send(new StringMessage { Message = "Looking for twins (by column)", Sender = "DataActivity" });
                                                 messenger.Send(new StringMessage { Message = $"Inserted value {Actual[c, rrr]} in ({c}, {rr}", Sender = "DataActivity" });
@@ -478,7 +517,11 @@ namespace Soduku.Services
                                             Possible[ccc, rrr] = Possible[ccc, rrr].Replace(Possible[c, r][0], Convert.ToChar(string.Empty));
                                             Possible[ccc, rrr] = Possible[ccc, rrr].Replace(Possible[c, r][1], Convert.ToChar(string.Empty));
                                             Possible[ccc, rrr] = Possible[ccc, rrr].Replace(Possible[c, r][2], Convert.ToChar(string.Empty));
-                                            //SetToolTip(ccc, rrr, possible[ccc, rrr]);
+                                            messenger.Send(new TripleTupleMessage
+                                            {
+                                                Message = new Tuple<object, object, object>(ccc, rrr, Possible[ccc, rrr]),
+                                                Sender = "ToolTip"
+                                            });
 
                                             if (original_possible != Possible[ccc, rrr])
                                             {
@@ -493,9 +536,18 @@ namespace Soduku.Services
 
                                             if (Possible[ccc, rrr].Length == 1)
                                             {
-                                                SetCell(ccc, rrr, Convert.ToInt32(Possible[ccc, rrr]), 1);
-                                                //SetToolTip(ccc, rrr, possible[ccc, rrr]);
-                                                //---saves the move into the stack
+                                                messenger.Send(new QuadTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object, object>(ccc, rrr, 
+                                                    Convert.ToInt32(Possible[ccc, rrr]), 1),
+                                                    Sender = "SetCell"
+                                                });
+                                                messenger.Send(new TripleTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object>(ccc, rrr, Possible[ccc, rrr]),
+                                                    Sender = "ToolTip"
+                                                });
+                                                
                                                 Moves.Push(ccc + rrr + Possible[ccc, rrr]);
                                                 messenger.Send(new StringMessage { Message = "Look For Triplets in Minigrids", 
                                                     Sender = "DataActivity" });
@@ -557,7 +609,11 @@ namespace Soduku.Services
                                         Possible[ccc, r] = Possible[ccc, r].Replace(Possible[c, r][0], Convert.ToChar(string.Empty));
                                         Possible[ccc, r] = Possible[ccc, r].Replace(Possible[c, r][1], Convert.ToChar(string.Empty));
                                         Possible[ccc, r] = Possible[ccc, r].Replace(Possible[c, r][2], Convert.ToChar(string.Empty));
-                                        //SetToolTip(ccc, r, possible[ccc, r]);
+                                        messenger.Send(new TripleTupleMessage
+                                        {
+                                            Message = new Tuple<object, object, object>(ccc, r, Possible[ccc, r]),
+                                            Sender = "ToolTip"
+                                        });
 
                                         if (original_possible != Possible[ccc, r])
                                         {
@@ -572,8 +628,17 @@ namespace Soduku.Services
 
                                         if (Possible[ccc, r].Length == 1)
                                         {
-                                            SetCell(ccc, r, Convert.ToInt32(Possible[ccc, r]), 1);
-                                            //SetToolTip(ccc, r, possible[ccc, r]);
+                                            messenger.Send(new QuadTupleMessage
+                                            {
+                                                Message = new Tuple<object, object, object, object>(ccc, r,
+                                                Convert.ToInt32(Possible[ccc, r]), 1),
+                                                Sender = "SetCell"
+                                            }); 
+                                            messenger.Send(new TripleTupleMessage
+                                            {
+                                                Message = new Tuple<object, object, object>(ccc, r, Possible[ccc, r]),
+                                                Sender = "ToolTip"
+                                            });
 
                                             Moves.Push(ccc + r + Possible[ccc, r]);
                                             messenger.Send(new StringMessage { Message = "Look For Triplets in Rows", Sender = "DataActivity" });
@@ -620,7 +685,11 @@ namespace Soduku.Services
                                             var original_possible = Possible[c, rrr];
                                             Possible[c, rrr] = Possible[c, rrr].Replace(Possible[c, r][0], Convert.ToChar(string.Empty));
                                             Possible[c, rrr] = Possible[c, rrr].Replace(Possible[c, r][1], Convert.ToChar(string.Empty));
-                                            //SetToolTip(c, rrr, possible[c, rrr]);
+                                            messenger.Send(new TripleTupleMessage
+                                            {
+                                                Message = new Tuple<object, object, object>(c, rrr, Possible[c, rrr]),
+                                                Sender = "ToolTip"
+                                            });
                                             
                                             if (original_possible != Possible[c, rrr])
                                             {
@@ -635,9 +704,18 @@ namespace Soduku.Services
 
                                             if (Possible[c, rrr].Length == 1)
                                             {
-                                                SetCell(c, rrr, Convert.ToInt32(Possible[c, rrr]), 1);
-                                                //SetToolTip(c, rrr, possible[c, rrr]);
-                                                //---saves the move into the stack
+                                                messenger.Send(new QuadTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object, object>(c, rrr, 
+                                                    Convert.ToInt32(Possible[c, rrr]), 1),
+                                                    Sender = "SetCell"
+                                                });
+                                                messenger.Send(new TripleTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object>(c, rrr, Possible[c, rrr]),
+                                                    Sender = "ToolTip"
+                                                });
+                                                
                                                 Moves.Push(c + rrr + Possible[c, rrr]);
                                                 messenger.Send(new StringMessage { Message = "Looking for twins (by column)", 
                                                     Sender = "DataActivity" });
@@ -699,7 +777,11 @@ namespace Soduku.Services
                                                         Convert.ToChar(string.Empty));
                                                     Possible[ccc, rrr] = Possible[ccc, rrr].Replace(Possible[c, r][1],
                                                         Convert.ToChar(string.Empty));
-                                                    //SetToolTip(ccc, rrr, possible[ccc, rrr]);
+                                                    messenger.Send(new TripleTupleMessage
+                                                    {
+                                                        Message = new Tuple<object, object, object>(ccc, rrr, Possible[ccc, rrr]),
+                                                        Sender = "ToolTip"
+                                                    });
                                                     
                                                     if (original_possible != Possible[ccc, rrr])
                                                     {
@@ -714,9 +796,18 @@ namespace Soduku.Services
 
                                                     if (Possible[ccc, rrr].Length == 1)
                                                     {
-                                                        SetCell(ccc, rrr, Convert.ToInt32(Possible[ccc, rrr]), 1);
-                                                        //SetToolTip(ccc, rrr, possible[ccc, rrr]);
-                                                        //---saves the move into the stack
+                                                        messenger.Send(new QuadTupleMessage
+                                                        {
+                                                            Message = new Tuple<object, object, object, object>(ccc, rrr, 
+                                                            Convert.ToInt32(Possible[ccc, rrr]), 1),
+                                                            Sender = "SetCell"
+                                                        });
+                                                        messenger.Send(new TripleTupleMessage
+                                                        {
+                                                            Message = new Tuple<object, object, object>(ccc, rrr, Possible[ccc, rrr]),
+                                                            Sender = "ToolTip"
+                                                        });
+                                                        
                                                         Moves.Push(ccc + rrr + Possible[ccc, rrr]);
                                                         messenger.Send(new StringMessage
                                                         {
@@ -774,7 +865,11 @@ namespace Soduku.Services
                                             var original_possible = Possible[ccc, r];
                                             Possible[ccc, r] = Possible[ccc, r].Replace(Possible[c, r][0], Convert.ToChar(string.Empty));
                                             Possible[ccc, r] = Possible[ccc, r].Replace(Possible[c, r][1], Convert.ToChar(string.Empty));
-                                            //SetToolTip(ccc, r, possible[ccc, r]);
+                                            messenger.Send(new TripleTupleMessage
+                                            {
+                                                Message = new Tuple<object, object, object>(ccc, r, Possible[ccc, r]),
+                                                Sender = "ToolTip"
+                                            });
 
                                             if (original_possible != Possible[ccc, r])
                                             {
@@ -789,8 +884,16 @@ namespace Soduku.Services
 
                                             if (Possible[ccc, r].Length == 1)
                                             {
-                                                SetCell(ccc, r, Convert.ToInt32(Possible[ccc, r]), 1);
-                                                //SetToolTip(ccc, r, possible[ccc, r]);
+                                                messenger.Send(new QuadTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object, object>(ccc, r, Convert.ToInt32(Possible[ccc, r]), 1),
+                                                    Sender = "SetCell"
+                                                });
+                                                messenger.Send(new TripleTupleMessage
+                                                {
+                                                    Message = new Tuple<object, object, object>(ccc, r, Possible[ccc, r]),
+                                                    Sender = "ToolTip"
+                                                });
 
                                                 Moves.Push(ccc + r + Possible[ccc, r]);
 
@@ -943,7 +1046,11 @@ namespace Soduku.Services
             for (var i = 0; i <= possibleValues.Length - 1; i++)
             {
                 Moves.Push(c + r + possibleValues[i].ToString());
-                SetCell(c, r, Convert.ToInt32(possibleValues[i].ToString()), 1);
+                messenger.Send(new QuadTupleMessage
+                {
+                    Message = new Tuple<object, object, object, object>(c, r, Convert.ToInt32(possibleValues[i].ToString()), 1),
+                    Sender = "SetCell"
+                });
 
                 messenger.Send(new StringMessage
                 {
