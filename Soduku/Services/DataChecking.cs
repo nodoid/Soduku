@@ -1,8 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using Soduku.Interfaces;
-using Soduku.Models;
+using Sudoku;
+using Sudoku.Interfaces;
+using Sudoku.Models;
 
-namespace Soduku.Services
+namespace Suduku.Services
 {
     public class DataChecking : IDataChecking
     {

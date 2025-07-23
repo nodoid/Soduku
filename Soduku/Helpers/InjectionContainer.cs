@@ -1,9 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using TimeOfDeath_MAUI.ViewModels;
-using TimeOfDeath_MAUI.Interfaces;
-using TimeOfDeath_MAUI.Services;
 using Sudoku.Interfaces;
-using Sudoku.Services;
+using Suduku.Services;
 
 namespace Sudoku.Helpers
 {
