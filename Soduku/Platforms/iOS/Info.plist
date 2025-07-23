@@ -29,5 +29,7 @@
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>CFBundleDisplayName</key>
+	<string>Sudoku</string>
 </dict>
 </plist>
